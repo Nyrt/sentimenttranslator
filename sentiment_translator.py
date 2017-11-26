@@ -2,8 +2,11 @@ import numpy as np
 from nltk.corpus import wordnet as wn
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk import tokenize
+from nltk.parse.stanford import StanfordParser
 import string
+import os
 
+os.environ["DEBUSSY"] = "1"
 
 # NLTK sentiment analysis
 # http://www.nltk.org/howto/sentiment.html
@@ -54,13 +57,32 @@ def sentim_toy(sentence):
  		#print('{0}: {1}, '.format(k, ss[k]))
 	#print()
 
+
+def parse_toy(sentence):
+	parser = StanfordParser()
+	parse_str = parser.parse(sentence)
+	print parse_str
+	clauses = []
+	for subtree in Tree.fromstring(parse_str).subtrees():
+		if subtree.label() == "S" or subtree.label() == "SBAR":
+			clauses.append(''.join(subtree.leaves()))
+	clauses_bck = clauses[:]
+	print clauses
+	for i in reversed(range(len(clauses) - 1)):
+		clauses[i] = clauses[i][0:clauses[i].index(clauses[i+1])]
+	clauses.append(clauses_bck[0][clauses[0].index(clauses[1]) + len(clauses[1]):])
+	for clause in clauses:
+		print clauses
+
 sentence = raw_input("Enter a sentence\n")
 
 words = sentence.split()
 
-sentim_toy(sentence)
+#antonym_toy(words)
 
+#sentim_toy(sentence)
 
+parse_toy(sentence)
 
 
 
