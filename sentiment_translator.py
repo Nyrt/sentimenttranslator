@@ -206,7 +206,7 @@ def Translate(words, target):
             # Replace word with antonym
             anti_found = False
             for w in wn.synsets(strip(word), pos=s_tag):
-                for j in w.lemmas():
+                for j in w.lemmas():6
                     if j.antonyms():
 
                         #Conjugate words???
