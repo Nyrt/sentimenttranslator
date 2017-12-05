@@ -1,12 +1,9 @@
 <!doctype html>
 
-<title>Test</title> 
+<title>Sentiment Translator</title> 
 <meta charset=utf-8> 
-
-<a href="/my-link/">Click me</a>
-
 <form action="{{ url_for('handle_data') }}" method="post">
-    <textarea name="input_text" rows="10" cols="100">I hate eggplant, but I like eggs.</textarea>
+    <textarea name="input_text" rows="10" cols="100">I like eggs, but I hate eggplant.</textarea>
     <br>
     <input type="text" name="sentiment" placeholder="choose a sentiment (pos or neg)">
     <input type="submit">

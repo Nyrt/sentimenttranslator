@@ -150,13 +150,20 @@ def sentiment(sentence):
     return (ss['pos'] - ss['neg']) * (1.0-ss['neu'])
 
 def invert_stopwords(word):
+    print word
     if word == "not":
         return ""
     elif word == "dont":
         return "do"
+    elif word == "don't":
+        return "do"
     elif word == "cant":
         return "can"
+    elif word == "can't":
+        return "can"
     elif word == "wont":
+        return "will"
+    elif word == "won't":
         return "will"
     elif word == "shouldnt":
         return "should"
@@ -194,47 +201,46 @@ def Translate(words, target):
             s_tag = wn_tag(tag)
 
             # Invert stopwords as necessisary
-            new_clause[i] = invert_stopwords(word)
-            if word in stopwords.words():
-                continue
+            new_clause[i] = invert_stopwords(strip(word))
 
-            # Preserve trailing punctuation 
-            punc = []
-            if word[-1] in string.punctuation or word[-1] not in string.printable:
-                punc = [c for c in word if c in string.punctuation or c not in string.printable]
+            if word not in stopwords.words() and word == new_clause[i]:
+                # Preserve trailing punctuation 
+                punc = []
+                if word[-1] in string.punctuation or word[-1] not in string.printable:
+                    punc = [c for c in word if c in string.punctuation or c not in string.printable]
 
-            # Replace word with antonym
-            anti_found = False
-            for w in wn.synsets(strip(word), pos=s_tag):
-                for j in w.lemmas():
-                    if j.antonyms():
+                # Replace word with antonym
+                anti_found = False
+                for w in wn.synsets(strip(word), pos=s_tag):
+                    for j in w.lemmas():
+                        if j.antonyms():
 
-                        #Conjugate words???
-                        new_clause[i] = " ".join(j.antonyms()[0].name().split("_"))
-                        if len(punc) > 0:
-                            new_clause[i] += "".join(punc)
-                        anti_found = True
+                            #Conjugate words???
+                            new_clause[i] = " ".join(j.antonyms()[0].name().split("_"))
+                            if len(punc) > 0:
+                                new_clause[i] += "".join(punc)
+                            anti_found = True
+                            break
+                    if anti_found:
                         break
-                if anti_found:
-                    break
 
+                # If the word has no antonym, add an inverter
+                if not anti_found and (s_tag == wn.ADJ or s_tag == wn.ADV):
+                    new_clause[i] = "not " + word
 
-            # If the word has no antonym, add an inverter
-            if not anti_found and (s_tag == wn.ADJ or s_tag == wn.ADV):
-                new_clause[i] = "not " + word
-
-            # Invert verbs (make tense sensitive?)
-            elif not anti_found and s_tag == wn.VERB:
-                new_clause[i] = "didn't " + word
+                # Invert verbs (make tense sensitive?)
+                elif not anti_found and s_tag == wn.VERB:
+                    new_clause[i] = "didn't " + word
 
             # Check if the sentiment has gone in the right direction
             new_sentiment = sentiment(" ".join(new_clause))
             change_score = (best_sentiment - new_sentiment) * target
-            if change_score <= 0: # If not, revert the change.
+            print new_sentiment
+            if change_score < 0: # If not, revert the change.
                 new_clause[i] = word
             else: 
                 best_sentiment = new_sentiment
-                print best_sentiment
+                #print best_sentiment
 
             
 
@@ -248,11 +254,8 @@ def Translate(words, target):
 @app.route('/handle_data', methods=['POST'])
 def handle_data():
     text = request.form['input_text']
-
     target = request.form['sentiment']
-
-    
-    if target == 'pos':
+    if target == 'pos' or target == 'p' or target == '1' or target == '+':
         target = -1
     else:
         target = 1
