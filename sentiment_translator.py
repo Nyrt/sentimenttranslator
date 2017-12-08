@@ -23,10 +23,6 @@ def my_link():
     print 'I got clicked!'
     return 'Click.'
 
-
-
-
-
 pos_tag_model = 'stanford/stanford-postagger-2017-06-09/models/english-bidirectional-distsim.tagger'
 pos_tag_jar = 'stanford/stanford-postagger-2017-06-09/stanford-postagger-3.8.0.jar'
 tagger = StanfordPOSTagger(pos_tag_model, pos_tag_jar)
@@ -50,26 +46,7 @@ parser = StanfordParser(parse_model, parse_jar)
 
 conversion_thresh = 0.5
 
-# def train_model():
-#   print "preprocessing data"
-#   corpus = movie_reviews.sents()
-#   corpus = [parse_tag(" ".join(sent))[0] for sent in corpus]
-#   tags = unique_list(tag for sent in corpus for (word, tag) in sent)
-#   vocab = unique_list(word for sent in corpus for (word, tag) in sent)
-#   print len(tags)
-#   print len(vocab)
-#   trainer = nltk.tag.HiddenMarkovModelTrainer(tag_set, vocab)
-#   train_set = []
-#   test_set = []
-#   for i in xrange(len(corpus)):
-#       if i %10 == 0:
-#           test_set += [corpus[i]]
-#       else:
-#           train_set += [corpus[i]]
-#   print len(train_set)
-#   print len(test_set)
-
-
+# Strips
 def strip(word):
         return "".join(c for c in word.strip() if c not in string.punctuation and c in string.printable)
 
@@ -125,12 +102,13 @@ def parse_tag(text):
     #print clauses
     return clauses
 
+#Checks if the sentence grammar is valid (doesn't work)
 def is_valid(sentence):
     parse_tree = parser.parse(sentence)
     print parse_tree
     return True
 
-
+# Converts treebank tags to wordnet tags
 def wn_tag(treebank_tag):
     if treebank_tag.startswith('J'):
         return wn.ADJ
@@ -149,6 +127,7 @@ def sentiment(sentence):
     ss = sid.polarity_scores(sentence)
     return (ss['pos'] - ss['neg']) * (1.0-ss['neu'])
 
+#Special function for inverting stop words
 def invert_stopwords(word):
     print word
     if word == "not":
